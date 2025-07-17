@@ -1,0 +1,49 @@
+{
+  "project_info": {
+    "project_number": "101371678293",
+    "firebase_url": "https://fir-andrt-default-rtdb.firebaseio.com",
+    "project_id": "fir-andrt",
+    "storage_bucket": "fir-andrt.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:101371678293:android:345dbbeb6670b9b08d4edc",
+        "android_client_info": {
+          "package_name": "gabi.low.findmydog"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDg-mEKozJNweKuO38g4xgnxgpJJKeMLJA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:101371678293:android:142c5f9dd09e25e18d4edc",
+        "android_client_info": {
+          "package_name": "gabi.low.firebaseapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDg-mEKozJNweKuO38g4xgnxgpJJKeMLJA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
