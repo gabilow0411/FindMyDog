@@ -10,17 +10,24 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.room.Room;
 
 import gabi.low.findmydog.databinding.ActivityMainBinding;
 import gabi.low.findmydog.databinding.DogsBinding;
 
 public class DogsActivity extends AppCompatActivity {
 private DogsBinding binding;
+    private static AppDatabase db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
+       // this.deleteDatabase("dog-database");
+         db = Room.databaseBuilder(this, AppDatabase.class, "dog-database")
+                .fallbackToDestructiveMigration()  // ← this prevents the crash
+                .allowMainThreadQueries()
+                .build();
 
         binding = DogsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -55,5 +62,8 @@ private DogsBinding binding;
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.frame, fragment);
         fragmentTransaction.commit();
+    }
+    public static AppDatabase getDb() {
+        return db;
     }
 }

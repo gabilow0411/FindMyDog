@@ -1,6 +1,7 @@
 package gabi.low.findmydog;
 
 import android.app.AlertDialog;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.Context;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class DogsAdapter extends RecyclerView.Adapter<DogsAdapter.DogsViewHolder> {
     private ArrayList<DogsClass> dataList;
@@ -63,13 +65,44 @@ public class DogsAdapter extends RecyclerView.Adapter<DogsAdapter.DogsViewHolder
 
         holder.ivFavorite.setOnClickListener(v -> {
             boolean currentState = currentItem.isFavorite();
+            if(currentState==false){
+                wirtetoRooms( currentItem);
+            }
             currentItem.setFavorite(!currentState);
             notifyItemChanged(position); // refresh the item to show new image
+
         });
         holder.expandButton.setOnClickListener(v -> {
             showImageDialog(currentItem);
         });
 
+    }
+
+    private void wirtetoRooms(DogsClass currentItem) {
+        LikedDog likedDog = new LikedDog();
+        //likedDog.setDogId(currentItem.getKeyID());  // ensure your DogsClass has this
+        likedDog.setName(currentItem.getName());
+        likedDog.setBreed(currentItem.getBreed());
+        //likedDog.setImageUrl(currentItem.getImageUrl());
+        AppDatabase db = DogsActivity.getDb();
+        if (db == null) {
+            Log.e("ROOM_TEST", "Dog key is null or empty! Skipping insert.");
+            return;
+        }
+        else {
+            Log.d("ROOM_TEST", "Trying to insert LikedDog: " +
+                    "\nID: " + likedDog.getDogId() +
+                    "\nName: " + likedDog.getName() +
+                    "\nBreed: " + likedDog.getBreed());
+            db.likedDogDao().insert(likedDog);
+            Log.d("ROOM_TEST", "Inserted likedDog: " + likedDog.getName());
+            List<LikedDog> allDogs = db.likedDogDao().getAll();
+            Log.d("ROOM_TEST", "Number of liked dogs in DB: " + allDogs.size());
+            for (LikedDog dog : allDogs) {
+                Log.d("ROOM_TEST", "Dog in DB: " + dog.getName() + ", " + dog.getBreed());
+            }
+
+        }
     }
 
     @Override
