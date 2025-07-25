@@ -23,7 +23,7 @@ private DogsBinding binding;
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-       // this.deleteDatabase("dog-database");
+        this.deleteDatabase("dog-database");
          db = Room.databaseBuilder(this, AppDatabase.class, "dog-database")
                 .fallbackToDestructiveMigration()  // ← this prevents the crash
                 .allowMainThreadQueries()

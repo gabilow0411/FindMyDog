@@ -1,6 +1,8 @@
 package gabi.low.findmydog;
 
 import android.app.AlertDialog;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,11 +10,19 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.transition.Transition;
+
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Context;
+import android.widget.Toast;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -83,23 +93,70 @@ public class DogsAdapter extends RecyclerView.Adapter<DogsAdapter.DogsViewHolder
         //likedDog.setDogId(currentItem.getKeyID());  // ensure your DogsClass has this
         likedDog.setName(currentItem.getName());
         likedDog.setBreed(currentItem.getBreed());
-        //likedDog.setImageUrl(currentItem.getImageUrl());
+        likedDog.setImageUrl(currentItem.getImageUrl());
+        likedDog.setAge(currentItem.getAge());
+        likedDog.setGender(currentItem.isGender());
+        likedDog.setDescription(currentItem.getDescription());
+        // Check if already in DB before continuing
         AppDatabase db = DogsActivity.getDb();
+        LikedDog existing = db.likedDogDao().getDogByNameAndBreed(currentItem.getName(), currentItem.getBreed());
+        if (existing != null) {
+            Toast.makeText(context, "Already in favorites", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        Glide.with(context)
+                .asBitmap()
+                .load(currentItem.getImageUrl())
+                .into(new CustomTarget<Bitmap>() {
+                    @Override
+                    public void onResourceReady(@NonNull Bitmap bitmap, @Nullable Transition<? super Bitmap> transition) {
+                        String filename = "dog_" + System.currentTimeMillis() + ".png";
+                        File file = new File(context.getFilesDir(), filename);
+                        try (FileOutputStream out = new FileOutputStream(file)) {
+                            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+                            likedDog.setImagePath(file.getAbsolutePath());
+
+                            AppDatabase db = DogsActivity.getDb();
+                            db.likedDogDao().insert(likedDog);
+                            Log.d("ROOM_TEST", "Inserted with local image path: " + file.getAbsolutePath());
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            Log.e("ROOM_TEST", "Failed to save image", e);
+                        }
+                    }
+
+                    @Override
+                    public void onLoadCleared(@Nullable Drawable placeholder) {
+                        // Not needed for now
+                    }
+                });
+
+
+
+
+
+
+        //AppDatabase db = DogsActivity.getDb();
         if (db == null) {
             Log.e("ROOM_TEST", "Dog key is null or empty! Skipping insert.");
             return;
         }
         else {
+
             Log.d("ROOM_TEST", "Trying to insert LikedDog: " +
                     "\nID: " + likedDog.getDogId() +
                     "\nName: " + likedDog.getName() +
                     "\nBreed: " + likedDog.getBreed());
-            db.likedDogDao().insert(likedDog);
+            //db.likedDogDao().insert(likedDog);
             Log.d("ROOM_TEST", "Inserted likedDog: " + likedDog.getName());
             List<LikedDog> allDogs = db.likedDogDao().getAll();
-            Log.d("ROOM_TEST", "Number of liked dogs in DB: " + allDogs.size());
+            Log.d("ROOM_TE" +
+                    "ST", "Number of liked dogs in DB: " + allDogs.size());
             for (LikedDog dog : allDogs) {
-                Log.d("ROOM_TEST", "Dog in DB: " + dog.getName() + ", " + dog.getBreed());
+                Log.d("ROOM_TEST", "Dog in DB: " + dog.getName() + ", " + dog.getBreed() +
+                        ", ID: " + dog.getDogId() +
+                        ", Image URL: " + dog.getImageUrl()+ "Age: " + dog.getAge() + "gender: "
+                        + dog.isGender() + "Description: " + dog.getDescription());
             }
 
         }

@@ -3,10 +3,14 @@ package gabi.low.findmydog;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -14,6 +18,9 @@ import android.view.ViewGroup;
  * create an instance of this fragment.
  */
 public class find extends Fragment {
+    private RecyclerView recyclerView;
+    private DogsAdapter adapter;
+    private ArrayList<DogsClass> favoriteDogsList;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -59,6 +66,34 @@ public class find extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_find, container, false);
+        View view = inflater.inflate(R.layout.fragment_find, container, false);
+        recyclerView = view.findViewById(R.id.findRecicler);
+        recyclerView.setLayoutManager(new androidx.recyclerview.widget.LinearLayoutManager(getContext()));
+        favoriteDogsList = new ArrayList<>();
+        loadFavoritesFromRoom();
+        return  view;
+    }
+
+    private void loadFavoritesFromRoom() {
+        AppDatabase db = DogsActivity.getDb();
+        if(db== null) {
+            return;
+        }
+        List<LikedDog> likedDogs  = db.likedDogDao().getAll();
+
+        for(LikedDog liked : likedDogs)
+        {
+            DogsClass dog = new DogsClass();
+            dog.setName(liked.getName());
+            dog.setBreed(liked.getBreed());
+            dog.setDescrition(liked.getDescription());
+            dog.setAge(liked.getAge());
+            dog.setGender(liked.isGender());
+            dog.setImageUrl(liked.getImageUrl());
+            dog.setFavorite(true);
+            favoriteDogsList.add(dog);
+        }
+        adapter = new DogsAdapter(getContext(), favoriteDogsList);
+        recyclerView.setAdapter(adapter);
     }
 }

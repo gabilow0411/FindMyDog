@@ -12,20 +12,58 @@ public class LikedDog {
     private String name;
     private String breed;
 
-    //private String imageUrl;
+    private String imageUrl;
+    private  int age;
+    private  boolean gender;
+    private  String description;
+    private String imagePath;
     //private String ownerEmail;
+    public LikedDog(String name, String breed, String imageUrl, int age, boolean gender,String description) {
+        this.name = name;
+        this.breed = breed;
+        this.imageUrl = imageUrl;
+        this.age = age;
+        this.description=description;
+        this.gender=gender;
+    }
 
     // Empty constructor (required by Room)
     public LikedDog() {
     }
 
-    // Full constructor (optional convenience)
-    public LikedDog(String name, String breed) {
-        this.name = name;
-        this.breed = breed;
-        //this.imageUrl = imageUrl;
-        //this.ownerEmail = ownerEmail;
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
     }
+
+    public String getImagePath() {
+        return imagePath;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+
+    public void setGender(boolean gender) {
+        this.gender = gender;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public boolean isGender() {
+        return gender;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+
 
 //    public int getId() {
 //        return id;
@@ -59,13 +97,13 @@ public class LikedDog {
         this.breed = breed;
     }
 
-//    public String getImageUrl() {
-//        return imageUrl;
-//    }
-//
-//    public void setImageUrl(String imageUrl) {
-//        this.imageUrl = imageUrl;
-//    }
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
 
 //    public String getOwnerEmail() {
 //        return ownerEmail;

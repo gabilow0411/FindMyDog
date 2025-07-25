@@ -21,6 +21,8 @@ public interface DogDao {
     @Delete
     void delete(LikedDog dog);
 
+    @Query("SELECT * FROM LikedDog WHERE name = :name AND breed = :breed LIMIT 1")
+    LikedDog getDogByNameAndBreed(String name, String breed);
 
 
     @Query("SELECT * FROM LikedDog WHERE dogId = :dogId")

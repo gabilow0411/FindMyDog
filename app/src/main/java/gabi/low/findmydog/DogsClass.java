@@ -46,8 +46,7 @@ public class DogsClass {
                     this.imageResource = R.drawable.male;
         else
                     this.imageResource =R.drawable.female;
-            // Assuming you have a drawable
-        //this.imageResource = imageResource;
+
         this.isFavorite = false;
         this.description = description;
     }
