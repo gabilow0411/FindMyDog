@@ -4,6 +4,7 @@ import static gabi.low.findmydog.FBref.refAuth;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -31,6 +32,7 @@ public class login extends AppCompatActivity {
 private EditText eTEmail;
 private EditText eTPass;
 private TextView tVMsg;
+public SharedPreferences sharedPref;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,6 +44,15 @@ private TextView tVMsg;
             return insets;
         });
         init();
+        sharedPref = this.getSharedPreferences("myDetails", MODE_PRIVATE);
+        if(sharedPref.contains("email"))
+        {
+            String email = sharedPref.getString("email", "");
+            String pass = sharedPref.getString("pass", "");
+            eTEmail.setText(email);
+            eTPass.setText(pass);
+
+        }
     }
     void init()
     {
@@ -70,6 +81,11 @@ private TextView tVMsg;
                             pd.dismiss();
 
                             if (task.isSuccessful()) {
+                                SharedPreferences.Editor preferencesEditor = sharedPref.edit();
+                                preferencesEditor.putString("email", email);
+                                preferencesEditor.putString("pass", pass);
+                                preferencesEditor.commit();
+
 
                                 Log.i("MainActivity", "createUserWithEmailAndPassword:success");
                                 FirebaseUser user = refAuth.getCurrentUser();

@@ -29,9 +29,12 @@ import java.util.List;
 public class DogsAdapter extends RecyclerView.Adapter<DogsAdapter.DogsViewHolder> {
     private ArrayList<DogsClass> dataList;
     private Context context;
-    public DogsAdapter(Context context, ArrayList<DogsClass> dataList) {
+    private boolean isFavoriteMode;
+    private AppDatabase db;
+    public DogsAdapter(Context context, ArrayList<DogsClass> dataList, boolean isFavoriteMode) {
         this.context = context;
         this.dataList = dataList;
+        this.isFavoriteMode = isFavoriteMode;
     }
     private void showImageDialog(DogsClass dog) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -68,20 +71,34 @@ public class DogsAdapter extends RecyclerView.Adapter<DogsAdapter.DogsViewHolder
         holder.ivDogImage.setImageResource(currentItem.getImageResource());
         holder.tvName.setText(currentItem.getName());
         holder.tvBreed.setText(currentItem.getBreed());
-        if (currentItem.isFavorite()) {
-            holder.ivFavorite.setImageResource(R.drawable.full);}
-        else
-            holder.ivFavorite.setImageResource(R.drawable.empty); // empty heart
+        //LikedDog likedDog = db.likedDogDao().getDogByNameAndBreed(currentItem.getName(), currentItem.getBreed());
+        if (!isFavoriteMode) {
+            holder.ivFavorite.setImageResource(R.drawable.baseline_delete_24); // delete icon
+            holder.ivFavorite.setOnClickListener(v -> {
+                db = DogsActivity.getDb();
+                LikedDog likedDog = db.likedDogDao().getDogByNameAndBreed(currentItem.getName(), currentItem.getBreed());
+                db.likedDogDao().deleteById(likedDog.getDogId());
+                dataList.remove(holder.getAdapterPosition());
+                notifyItemRemoved(holder.getAdapterPosition());
+                Toast.makeText(context, "Removed from favorites", Toast.LENGTH_SHORT).show();
+            });
+        }
+            else{
+                if (currentItem.isFavorite()) {
+                    holder.ivFavorite.setImageResource(R.drawable.full);
+                } else
+                    holder.ivFavorite.setImageResource(R.drawable.empty); // empty heart
 
-        holder.ivFavorite.setOnClickListener(v -> {
-            boolean currentState = currentItem.isFavorite();
-            if(currentState==false){
-                wirtetoRooms( currentItem);
+                holder.ivFavorite.setOnClickListener(v -> {
+                    boolean currentState = currentItem.isFavorite();
+                    if (currentState == false) {
+                        wirtetoRooms(currentItem);
+                    }
+                    currentItem.setFavorite(!currentState);
+                    notifyItemChanged(position); // refresh the item to show new image
+
+                });
             }
-            currentItem.setFavorite(!currentState);
-            notifyItemChanged(position); // refresh the item to show new image
-
-        });
         holder.expandButton.setOnClickListener(v -> {
             showImageDialog(currentItem);
         });
@@ -98,7 +115,7 @@ public class DogsAdapter extends RecyclerView.Adapter<DogsAdapter.DogsViewHolder
         likedDog.setGender(currentItem.isGender());
         likedDog.setDescription(currentItem.getDescription());
         // Check if already in DB before continuing
-        AppDatabase db = DogsActivity.getDb();
+         db = DogsActivity.getDb();
         LikedDog existing = db.likedDogDao().getDogByNameAndBreed(currentItem.getName(), currentItem.getBreed());
         if (existing != null) {
             Toast.makeText(context, "Already in favorites", Toast.LENGTH_SHORT).show();

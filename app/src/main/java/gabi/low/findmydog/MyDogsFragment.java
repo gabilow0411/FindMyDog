@@ -76,7 +76,7 @@ public class MyDogsFragment extends Fragment {
             recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
             //creat a arryList for the dogs
             ArrayList<DogsClass> dogsList = new ArrayList<>();
-            myAdapter = new DogsAdapter(getContext(), dogsList);
+            myAdapter = new DogsAdapter(getContext(), dogsList, false);
             recyclerView.setAdapter(myAdapter);
             String uid = FBref.refAuth.getCurrentUser().getUid();
             FBref.refDogs.child(uid).addListenerForSingleValueEvent(new ValueEventListener() {

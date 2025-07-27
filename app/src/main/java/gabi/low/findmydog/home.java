@@ -76,7 +76,7 @@ public class home extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         //creat a arryList for the dogs
         ArrayList<DogsClass> dogsList = new ArrayList<>();
-        myAdapter = new DogsAdapter(getContext(), dogsList);
+        myAdapter = new DogsAdapter(getContext(), dogsList, true);
         recyclerView.setAdapter(myAdapter);
         FBref.refDogs.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override

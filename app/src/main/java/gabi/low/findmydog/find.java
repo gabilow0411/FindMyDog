@@ -93,7 +93,7 @@ public class find extends Fragment {
             dog.setFavorite(true);
             favoriteDogsList.add(dog);
         }
-        adapter = new DogsAdapter(getContext(), favoriteDogsList);
+        adapter = new DogsAdapter(getContext(), favoriteDogsList, false);
         recyclerView.setAdapter(adapter);
     }
 }
