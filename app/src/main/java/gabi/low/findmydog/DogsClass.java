@@ -10,7 +10,7 @@ public class DogsClass {
     private int imageResource;
     String keyID;
     String imageUrl;
-
+    private String ownerUid;
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
     }
@@ -103,5 +103,12 @@ public class DogsClass {
 
     public void setGender(boolean gender) {
         this.gender = gender;
+    }
+    public String getOwnerUid() {
+        return ownerUid;
+    }
+
+    public void setOwnerUid(String ownerUid) {
+        this.ownerUid = ownerUid;
     }
 }

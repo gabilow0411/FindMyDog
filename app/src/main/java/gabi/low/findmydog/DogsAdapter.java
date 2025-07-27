@@ -1,8 +1,11 @@
 package gabi.low.findmydog;
 
 import android.app.AlertDialog;
+import android.content.ActivityNotFoundException;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +15,11 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -31,10 +39,12 @@ public class DogsAdapter extends RecyclerView.Adapter<DogsAdapter.DogsViewHolder
     private Context context;
     private boolean isFavoriteMode;
     private AppDatabase db;
+
     public DogsAdapter(Context context, ArrayList<DogsClass> dataList, boolean isFavoriteMode) {
         this.context = context;
         this.dataList = dataList;
         this.isFavoriteMode = isFavoriteMode;
+
     }
     private void showImageDialog(DogsClass dog) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -62,6 +72,7 @@ public class DogsAdapter extends RecyclerView.Adapter<DogsAdapter.DogsViewHolder
     public DogsViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.item_row, parent, false);
+
         return new DogsViewHolder(v);
     }
 
@@ -99,9 +110,53 @@ public class DogsAdapter extends RecyclerView.Adapter<DogsAdapter.DogsViewHolder
 
                 });
             }
-        holder.expandButton.setOnClickListener(v -> {
-            showImageDialog(currentItem);
+        holder.sendEmailButton.setOnClickListener(view -> {
+            String uploaderUid = currentItem.getOwnerUid(); // Must be saved when dog is uploaded
+
+            if (uploaderUid == null || uploaderUid.isEmpty()) {
+                Toast.makeText(context, "No uploader UID found", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            DatabaseReference emailRef = FirebaseDatabase.getInstance()
+                    .getReference("Subscribers")
+                    .child(uploaderUid)
+                    .child("email");
+
+            emailRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    String email = snapshot.getValue(String.class);
+                    if (email != null && !email.isEmpty()) {
+                        String subject = "Interested in " + currentItem.getName();
+                        String body = "Hi, I'm interested in adopting " + currentItem.getName() + ". Please get in touch!";
+                        String uriText = "mailto:" + email +
+                                "?subject=" + Uri.encode(subject) +
+                                "&body=" + Uri.encode(body);
+                        Intent emailIntent = new Intent(Intent.ACTION_SENDTO);
+                        emailIntent.setData(Uri.parse(uriText));
+                        emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Interested in " + currentItem.getName());
+
+                        try {
+                            context.startActivity(Intent.createChooser(emailIntent, "Send email using..."));
+                        } catch (ActivityNotFoundException e) {
+                            Toast.makeText(context, "No email app found", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Toast.makeText(context, "Email not found for this user", Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    Toast.makeText(context, "Error fetching email", Toast.LENGTH_SHORT).show();
+                }
+            });
         });
+
+
+
+
 
     }
 
@@ -191,6 +246,7 @@ public class DogsAdapter extends RecyclerView.Adapter<DogsAdapter.DogsViewHolder
         public final ImageView ivDogImage;
         public final ImageView ivFavorite;
         public final com.google.android.material.floatingactionbutton.FloatingActionButton expandButton;
+        public final ImageView sendEmailButton;
 
         public DogsViewHolder(View view) {
             super(view);
@@ -199,6 +255,7 @@ public class DogsAdapter extends RecyclerView.Adapter<DogsAdapter.DogsViewHolder
             ivDogImage = view.findViewById(R.id.imageViewItem);
             ivFavorite = view.findViewById(R.id.hart);
             expandButton = view.findViewById(R.id.expand);
+            sendEmailButton = view.findViewById(R.id.emailButton);
         }
 
     }

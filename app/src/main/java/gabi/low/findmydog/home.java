@@ -83,9 +83,11 @@ public class home extends Fragment {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 dogsList.clear();
                 for( DataSnapshot userSnapshot  : snapshot.getChildren()) {
+                    String ownerUid = userSnapshot.getKey();
                     for (DataSnapshot dogSnapshot : userSnapshot.getChildren()) {
                         DogsClass dog = dogSnapshot.getValue(DogsClass.class);
                         if (dog != null) {
+                            dog.setOwnerUid(ownerUid);
                             dogsList.add(dog);
                         }
                     }
